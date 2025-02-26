@@ -7,11 +7,11 @@ program
     ;
 
 sentencia
-    : (definicion_global | asignacion | func_definicion | struct_definicion | entrada)
+    : (definicion_global | asignacion | func_definicion | struct_definicion | salida | entrada)
     ;
 
 sentencia_funcion
-	: (definicion_global | asignacion | entrada |func_call)
+	: (definicion_global | asignacion | salida | entrada |func_call';'|if_statement|while_statement|return_statement)
 	;
 	
 definicion_global
@@ -23,18 +23,35 @@ definicion_local
 	;
 
 func_definicion
-    : IDENT '(' (definicion_local (',' definicion_local)*)? ')' (':' tipo)? '{' (sentencia_funcion)* ('return' expresion ';')?'}'
+    : IDENT '(' (definicion_local (',' definicion_local)*)? ')' (':' tipo)? '{' (sentencia_funcion)*'}'
     ;
-
+    
+return_statement
+	: 'return' expresion? ';'
+	;
+	
 struct_definicion
     : 'struct' IDENT '{' (definicion_local';')* '}'
     ;
 
+if_statement
+    : 'if' '('expresion')' '{' (sentencia_funcion)*'}'('else' '{' (sentencia_funcion)*'}')?
+    ;
 
+while_statement
+    : 'while' '('expresion')' '{' (sentencia_funcion)*'}'
+    ;
+
+salida
+	: ('print'|'printsp'|'println') (expresion_list)? ';'
+	;
+	
+expresion_list
+	:expresion (',' expresion)*
+	;
+	
 entrada
-	: 'print' expresion ';'
-	| 'printsp' expresion ';'
-	| 'println' expresion ';'
+	: 'read' expresion ';'
 	;
 	
 func_call
@@ -48,17 +65,20 @@ asignacion
     
 expresion
     : '(' expresion ')'
+    | '<'tipo'>' '('expresion')'
     | IDENT
     | LITENT
     | LITCHAR
     | LITREAL
+    | func_call
     | expresion '[' expresion ']'
     | '!' expresion
     | expresion ('*' | '/') expresion
     | expresion ('+' | '-') expresion
-    | expresion ('==' | '!=') expresion
     | expresion ('<' | '>' | '<=' | '>=') expresion
-    | expresion ('&&'|'||') expresion
+    | expresion ('==' | '!=') expresion
+    | expresion '&&' expresion
+    | expresion '||' expresion
     | expresion '.' expresion
     ;
 
